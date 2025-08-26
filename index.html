@@ -1,0 +1,113 @@
+<!-- 檔案：index.html -->
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的冰箱 LIFF</title>
+  <style>
+    /* 簡單的 CSS 樣式，讓畫面好看一點 */
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
+      padding: 1.5em; 
+      text-align: center; 
+      background-color: #f4f4f9;
+      color: #333;
+    }
+    img { 
+      width: 120px; 
+      height: 120px; 
+      border-radius: 50%; 
+      border: 3px solid #fff;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    #loading { 
+      font-size: 1.2em; 
+      color: #666;
+    }
+    #profile { 
+      display: none; /* 預設隱藏個人資料區塊 */
+      margin-top: 20px;
+    }
+    #displayName {
+      font-size: 1.5em;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    hr {
+      border: 0;
+      height: 1px;
+      background: #ddd;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Hello World</h1>
+  <hr>
+
+  <div id="loading">正在載入 LIFF...</div>
+  
+  <div id="profile">
+    <img id="profilePicture" src="" alt="Profile Picture">
+    <h2 id="displayName"></h2>
+  </div>
+
+  <!-- 引用 LINE LIFF SDK 的 JavaScript 檔案 -->
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <script>
+    // 當整個網頁載入完成後，執行此函式
+    window.onload = function() {
+      initializeLiff();
+    };
+
+    // LIFF 初始化的主要函式
+    function initializeLiff() {
+      // **【重要】請務必將 '...' 替換成您自己的 LIFF ID！**
+      const myLiffId = '2003850239-jv9bQXn3'; 
+      
+      liff.init({ liffId: myLiffId })
+        .then(() => {
+          // LIFF 初始化成功
+          document.getElementById('loading').innerText = 'LIFF 初始化成功！';
+          
+          // 判斷使用者是否已經登入 LINE
+          if (!liff.isLoggedIn()) {
+            // 若未登入，則自動導向 LINE 的登入頁面
+            liff.login();
+          } else {
+            // 若已登入，則呼叫函式來取得使用者資料
+            getUserProfile();
+          }
+        })
+        .catch((err) => {
+          // LIFF 初始化失敗，在 Console 顯示錯誤訊息
+          console.error('LIFF Initialization failed', err);
+          document.getElementById('loading').innerText = 'LIFF 初始化失敗，請檢查 LIFF ID 是否正確。';
+        });
+    }
+
+    // 獲取並顯示使用者個人資料的函式
+    function getUserProfile() {
+      liff.getProfile()
+        .then((profile) => {
+          // 成功獲取資料後，將資料填入 HTML 元素中
+          document.getElementById('profilePicture').src = profile.pictureUrl;
+          document.getElementById('displayName').innerText = profile.displayName;
+          
+          // 隱藏「正在載入」的訊息
+          document.getElementById('loading').style.display = 'none';
+          // 顯示個人資料的區塊
+          document.getElementById('profile').style.display = 'block';
+        })
+        .catch((err) => {
+          // 獲取資料失敗，在 Console 顯示錯誤訊息
+          console.error('Failed to get profile', err);
+        });
+    }
+  </script>
+
+</body>
+</html>
